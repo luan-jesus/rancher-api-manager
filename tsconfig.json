@@ -1,0 +1,25 @@
+{
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "./out.d.ts",
+    "node_modules",
+  ],
+  "compilerOptions": {
+    /* Projects */
+    "target": "es2016",
+
+    /* Modules */
+    "module": "CommonJS",
+    "baseUrl": "src",
+    "outDir": "./build",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true
+  }
+}
