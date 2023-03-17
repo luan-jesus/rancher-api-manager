@@ -1,9 +1,8 @@
 import * as dotenv from 'dotenv';
 import { program } from 'commander';
 
-import rancherService from './service/rancherService';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('ttycolor')().defaults();
+import rancherService from '@/service/rancherService';
+
 dotenv.config();
 
 async function main() {

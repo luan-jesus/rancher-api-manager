@@ -1,4 +1,8 @@
-import rancherRepository from 'repository/rancherRepository';
+import rancherRepository from '@/repository/rancherRepository';
+import logger, { ansiColorLightBlue, ansiReset } from '@/infrastructure/logger';
+import type RancherProject from '@/models/RancherProject';
+import type RancherContainer from '@/models/RancherContainer';
+import RancherStates from '@/models/RancherProject/StatesEnum';
 
 interface RestartContainersParams {
   environments: string[];
@@ -8,50 +12,54 @@ interface RestartContainersParams {
 async function restartContainers({ environments, containers }: RestartContainersParams) {
   for (const env of environments) {
     try {
-      console.info(`==============================================`);
-      console.info(`searching for project:`, env);
-      console.info(`==============================================`);
+      logger.info(`==============================================`);
+      logger.info(`Searching for project: ${ansiColorLightBlue}${env}${ansiReset}`);
+      logger.info(`==============================================`);
       const projectResponse = await rancherRepository.findRancherProjectByName(env);
       const project = projectResponse?.data?.find((p) => p.name === env);
 
       if (!project) {
-        throw new Error(`project ${env} not found`);
+        throw new Error(`Project ${env} not found`);
       }
 
-      console.info(`project:`, `{id: ${project.id}, name: ${project.name}, description: ${project.description}, state: ${project.state}}`);
+      logger.info(`Project:`, printRancherObject(project));
 
-      console.info(`Searching for containers`);
+      if (project.state !== RancherStates.ACTIVE) {
+        throw new Error('Project is not active');
+      }
+
+      logger.info(`Searching for containers`);
       const rancherContainersResponse = await rancherRepository.findContainersByProjectId(project.id);
       const rancherContainers = rancherContainersResponse?.data;
 
       if (!rancherContainers || rancherContainers.length === 0) {
-        throw new Error(`no containers were found for project: {id: ${project.id}, name: ${project.name}}`);
+        throw new Error(`No containers were found for project: {id: ${project.id}, name: ${project.name}}`);
       }
 
       const selectedContainers = rancherContainers.filter((c) => nameExistsInList(containers, c.name));
 
       if (!selectedContainers || selectedContainers.length === 0) {
-        throw new Error(`none of the specified containers were found on project: {id: ${project.id}, name: ${project.name}}`);
+        throw new Error(`None of the specified containers were found on project: {id: ${project.id}, name: ${project.name}}`);
       }
 
-      console.info(`containers to restart:`, selectedContainers.map((sc) => sc.name));
+      logger.info(`Containers to restart:`, selectedContainers.map((sc) => sc.name));
 
       for (const sc of selectedContainers) {
         try {
-          console.info(`==============================================`);
-          console.info(`Restarting:`, `{name: ${sc.name}}, id: ${sc.id}`);
-          console.info(`==============================================`);
+          logger.info(`==============================================`);
+          logger.info(`Restarting:`, { name: sc.name, id: sc.id });
+          logger.info(`==============================================`);
           await rancherRepository.restartContainer(project.id, sc.id);
-          console.info(`success`);
+          logger.success(`Container restarted successfully`);
         } catch (e) {
           if (e instanceof Error) {
-            console.warn('error: ' + e.message);
+            logger.warn('Error: ' + e);
           }
         }
       }
     } catch (e) {
       if (e instanceof Error) {
-        console.error(`Error: ${e.message}, ending execution`);
+        logger.error(e.message);
         break;
       }
     }
@@ -65,6 +73,17 @@ function nameExistsInList(list: string[], name: string): boolean {
     }
   }
   return false;
+}
+
+function printRancherObject(object: RancherProject | RancherContainer) {
+  return {
+    id: object.id,
+    name: object.name,
+    description: object.description,
+    state: object.state,
+    type: object.type,
+    uuid: object.uuid,
+  };
 }
 
 export default { restartContainers };

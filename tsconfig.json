@@ -13,6 +13,9 @@
     /* Modules */
     "module": "CommonJS",
     "baseUrl": "src",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "outDir": "./build",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

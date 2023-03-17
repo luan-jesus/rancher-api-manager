@@ -32,12 +32,12 @@ module.exports = {
         "no-trailing-spaces": 2,
         "arrow-body-style": ["error", "as-needed"],
         "@typescript-eslint/consistent-type-imports": 2,
-        // "no-restricted-imports": [
-        //     "error",
-        //     {
-        //         "patterns": ["../"]
-        //     }
-        // ],
+        "no-restricted-imports": [
+            "error",
+            {
+                "patterns": ["../"]
+            }
+        ],
     },
 
 }

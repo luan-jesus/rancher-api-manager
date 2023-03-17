@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-import type RancherResponse from 'models/RancherResponse';
-import type RancherProject from 'models/RancherProject';
-import type RancherContainer from 'models/RancherContainer';
+import type RancherResponse from '@/models/RancherResponse';
+import type RancherProject from '@/models/RancherProject';
+import type RancherContainer from '@/models/RancherContainer';
 
 async function findRancherProjectByName(name: string): Promise<RancherResponse<RancherProject>> {
   const response = await axios.get<RancherResponse<RancherProject>>('/v2-beta/projects', {

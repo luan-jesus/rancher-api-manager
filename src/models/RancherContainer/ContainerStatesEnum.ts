@@ -1,7 +1,7 @@
-enum ContainerState {
+enum ContainerStatesEnum {
   RUNNING = 'running',
   STOPPED = 'stopped',
   RESTARTING = 'restarting'
 }
 
-export default ContainerState;
+export default ContainerStatesEnum;
