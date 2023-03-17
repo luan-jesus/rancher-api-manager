@@ -1,8 +1,9 @@
 import rancherRepository from '@/repository/rancherRepository';
-import logger, { ansiColorLightBlue, ansiReset } from '@/infrastructure/logger';
+import logger from '@/infrastructure/logger';
 import type RancherProject from '@/models/RancherProject';
 import type RancherContainer from '@/models/RancherContainer';
 import RancherStates from '@/models/RancherProject/StatesEnum';
+import { ansiTextColor, AnsiColor} from '@/utils/ansiUtils';
 
 interface RestartContainersParams {
   environments: string[];
@@ -13,7 +14,7 @@ async function restartContainers({ environments, containers }: RestartContainers
   for (const env of environments) {
     try {
       logger.info(`==============================================`);
-      logger.info(`Searching for project: ${ansiColorLightBlue}${env}${ansiReset}`);
+      logger.info(`Searching for project: ${ansiTextColor(env, AnsiColor.LIGHT_BLUE)}`);
       logger.info(`==============================================`);
       const projectResponse = await rancherRepository.findRancherProjectByName(env);
       const project = projectResponse?.data?.find((p) => p.name === env);
