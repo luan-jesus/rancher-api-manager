@@ -29,15 +29,26 @@ async function findContainersByProjectId(projectId: string): Promise<RancherResp
     params: {
       sort: 'name',
       type: 'container',
-      limit: '-1'
+      limit: '-1',
     },
   });
 
   return response.data;
 }
 
-async function restartContainer(projectId: string, container: string): Promise<RancherResponse<RancherContainer>> {
-  return {} as RancherResponse<RancherContainer>;
+async function restartContainer(projectId: string, containerId: string): Promise<RancherResponse<RancherContainer>> {
+  const response = await axios.post<RancherResponse<RancherContainer>>(`/v2-beta/projects/${projectId}/containers/${containerId}?action=restart`,
+    {},
+    {
+      baseURL: process.env.BASE_URL,
+      auth: {
+        username: process.env.KEY ?? '',
+        password: process.env.SECRET ?? '',
+      },
+    }
+  );
+
+  return response.data;
 }
 
 export default { findRancherProjectByName, findContainersByProjectId, restartContainer };

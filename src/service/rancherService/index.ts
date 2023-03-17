@@ -8,7 +8,9 @@ interface RestartContainersParams {
 async function restartContainers({ environments, containers }: RestartContainersParams) {
   for (const env of environments) {
     try {
-      console.info(`Searching for project:`, env);
+      console.info(`==============================================`);
+      console.info(`searching for project:`, env);
+      console.info(`==============================================`);
       const projectResponse = await rancherRepository.findRancherProjectByName(env);
       const project = projectResponse?.data?.find((p) => p.name === env);
 
@@ -26,16 +28,29 @@ async function restartContainers({ environments, containers }: RestartContainers
         throw new Error(`no containers were found for project: {id: ${project.id}, name: ${project.name}}`);
       }
 
-      const selectedContainers = rancherContainers.filter((c) => containers.indexOf(c.name) !== -1);
+      const selectedContainers = rancherContainers.filter((c) => containerExistsInList(containers, c.name));
+
       if (!selectedContainers || selectedContainers.length === 0) {
         throw new Error(`none of the specified containers were found on project: {id: ${project.id}, name: ${project.name}}`);
       }
 
-      console.info(`containers to restart`, selectedContainers);
-      selectedContainers.forEach(async (c) => {
-        console.info(`restarting container`, c);
-        await rancherRepository.restartContainer(project.id, c.id);
-      });
+      console.info(
+        `containers to restart:`,
+        selectedContainers.map((sc) => sc.name)
+      );
+      for (const sc of selectedContainers) {
+        try {
+          console.info(`==============================================`);
+          console.info(`Restarting:`, `{name: ${sc.name}}, id: ${sc.id}`);
+          console.info(`==============================================`);
+          await rancherRepository.restartContainer(project.id, sc.id);
+          console.info(`success`);
+        } catch (e) {
+          if (e instanceof Error) {
+            console.warn('error: ' + e.message);
+          }
+        }
+      }
     } catch (e) {
       if (e instanceof Error) {
         console.error(`Error: ${e.message}, ending execution`);
@@ -45,6 +60,13 @@ async function restartContainers({ environments, containers }: RestartContainers
   }
 }
 
-
+function containerExistsInList(containers: string[], name: string): boolean {
+  for (const container of containers) {
+    if (name.includes(container)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export default { restartContainers };
