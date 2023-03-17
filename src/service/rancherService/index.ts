@@ -28,16 +28,14 @@ async function restartContainers({ environments, containers }: RestartContainers
         throw new Error(`no containers were found for project: {id: ${project.id}, name: ${project.name}}`);
       }
 
-      const selectedContainers = rancherContainers.filter((c) => containerExistsInList(containers, c.name));
+      const selectedContainers = rancherContainers.filter((c) => nameExistsInList(containers, c.name));
 
       if (!selectedContainers || selectedContainers.length === 0) {
         throw new Error(`none of the specified containers were found on project: {id: ${project.id}, name: ${project.name}}`);
       }
 
-      console.info(
-        `containers to restart:`,
-        selectedContainers.map((sc) => sc.name)
-      );
+      console.info(`containers to restart:`, selectedContainers.map((sc) => sc.name));
+
       for (const sc of selectedContainers) {
         try {
           console.info(`==============================================`);
@@ -60,9 +58,9 @@ async function restartContainers({ environments, containers }: RestartContainers
   }
 }
 
-function containerExistsInList(containers: string[], name: string): boolean {
-  for (const container of containers) {
-    if (name.includes(container)) {
+function nameExistsInList(list: string[], name: string): boolean {
+  for (const element of list) {
+    if (name.includes(element)) {
       return true;
     }
   }
