@@ -47,9 +47,7 @@ async function restartContainers({ environments, containers }: RestartContainers
 
       for (const sc of selectedContainers) {
         try {
-          logger.info(`==============================================`);
           logger.info(`Restarting:`, { name: sc.name, id: sc.id });
-          logger.info(`==============================================`);
           await rancherRepository.restartContainer(project.id, sc.id);
           logger.success(`Container restarted successfully`);
         } catch (e) {
