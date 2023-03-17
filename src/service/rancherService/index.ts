@@ -5,25 +5,46 @@ interface RestartContainersParams {
   containers: string[];
 }
 
-async function restartContainers({
-  environments,
-  containers,
-}: RestartContainersParams) {
-  try {
-    environments.forEach(async (env) => {
-      const rancherContainers = await rancherRepository.getEnvironmentContainers(env);
+async function restartContainers({ environments, containers }: RestartContainersParams) {
+  for (const env of environments) {
+    try {
+      console.info(`Searching for project:`, env);
+      const projectResponse = await rancherRepository.findRancherProjectByName(env);
+      const project = projectResponse?.data?.find((p) => p.name === env);
 
-      if (containers.length === 0) {
-        throw new Error('Wrong environment or none container was found');
+      if (!project) {
+        throw new Error(`project ${env} not found`);
       }
 
-      await rancherRepository.restartEnvironmentContainers(env, rancherContainers);
-    });
-  } catch (e) {
-    if (e instanceof Error) {
-      console.error(e.message);
+      console.info(`project:`, `{id: ${project.id}, name: ${project.name}, description: ${project.description}, state: ${project.state}}`);
+
+      console.info(`Searching for containers`);
+      const rancherContainersResponse = await rancherRepository.findContainersByProjectId(project.id);
+      const rancherContainers = rancherContainersResponse?.data;
+
+      if (!rancherContainers || rancherContainers.length === 0) {
+        throw new Error(`no containers were found for project: {id: ${project.id}, name: ${project.name}}`);
+      }
+
+      const selectedContainers = rancherContainers.filter((c) => containers.indexOf(c.name) !== -1);
+      if (!selectedContainers || selectedContainers.length === 0) {
+        throw new Error(`none of the specified containers were found on project: {id: ${project.id}, name: ${project.name}}`);
+      }
+
+      console.info(`containers to restart`, selectedContainers);
+      selectedContainers.forEach(async (c) => {
+        console.info(`restarting container`, c);
+        await rancherRepository.restartContainer(project.id, c.id);
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        console.error(`Error: ${e.message}, ending execution`);
+        break;
+      }
     }
   }
 }
+
+
 
 export default { restartContainers };
