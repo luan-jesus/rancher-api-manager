@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ansiTextColor, AnsiColor } from '@/utils/ansiUtils';
 
 function info(message: string, ...args: any) {
