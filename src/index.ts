@@ -20,8 +20,8 @@ async function main() {
     .action(rancherService.restartContainers);
 
   program
-    .command('build')
-    .description('Build list of projects')
+    .command('checkout')
+    .description('Checkout project(s) to determined branch')
     .option('-b, --branch <value>', 'which branch to checkout', 'main')
     .option('-p, --projects [projects...]', 'Services to build, if none, all services will build')
     .action(projectService.buildProjects);
