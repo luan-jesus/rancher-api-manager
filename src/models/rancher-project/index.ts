@@ -1,4 +1,4 @@
-import type RancherStates from './StatesEnum';
+import type RancherStates from './rancher-states-enum';
 
 interface RancherProject {
   id: string;

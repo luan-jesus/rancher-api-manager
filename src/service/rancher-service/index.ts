@@ -1,9 +1,9 @@
-import rancherRepository from '@/repository/rancherRepository';
+import rancherRepository from '@/repository/rancher-repository';
 import logger from '@/infrastructure/logger';
-import type RancherProject from '@/models/RancherProject';
-import type RancherContainer from '@/models/RancherContainer';
-import RancherStates from '@/models/RancherProject/StatesEnum';
-import { ansiTextColor, AnsiColor} from '@/utils/ansiUtils';
+import type RancherProject from '@/models/rancher-project';
+import type RancherContainer from '@/models/rancher-container';
+import RancherStates from '@/models/rancher-project/rancher-states-enum';
+import { ansiTextColor, AnsiColor} from '@/utils/ansi-utils';
 
 interface RestartContainersParams {
   environments: string[];

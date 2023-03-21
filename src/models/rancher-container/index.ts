@@ -1,4 +1,4 @@
-import type ContainerState from './ContainerStatesEnum';
+import type ContainerState from './container-states-enum';
 
 interface RancherContainer {
   id: string;

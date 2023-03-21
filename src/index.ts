@@ -1,7 +1,8 @@
 import * as dotenv from 'dotenv';
 import { program } from 'commander';
 
-import rancherService from '@/service/rancherService';
+import rancherService from '@/service/rancher-service';
+import projectService from '@/service/project-service';
 
 dotenv.config();
 
@@ -17,6 +18,13 @@ async function main() {
     .requiredOption('-e, --environments [environments...]', 'specify environments')
     .requiredOption('-c, --containers [containers...]', 'specify containers')
     .action(rancherService.restartContainers);
+
+  program
+    .command('build')
+    .description('Build list of projects')
+    .option('-b, --branch <value>', 'which branch to checkout', 'main')
+    .option('-p, --projects [projects...]', 'Services to build, if none, all services will build')
+    .action(projectService.buildProjects);
 
   program.parse();
   return 0;
