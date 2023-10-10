@@ -59,7 +59,7 @@ async function restartContainers({ environments, containers }: RestartContainers
     } catch (e) {
       if (e instanceof Error) {
         logger.error(e.message);
-        break;
+        continue;
       }
     }
   }
