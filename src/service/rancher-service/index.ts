@@ -33,13 +33,13 @@ async function restartContainers({ environments, containers }: RestartContainers
       const rancherContainersResponse = await rancherRepository.findContainersByProjectId(project.id);
       const rancherContainers = rancherContainersResponse?.data;
 
-      if (!rancherContainers || rancherContainers.length === 0) {
+      if (!rancherContainers ?? rancherContainers.length === 0) {
         throw new Error(`No containers were found for project: {id: ${project.id}, name: ${project.name}}`);
       }
 
       const selectedContainers = rancherContainers.filter((c) => nameExistsInList(containers, c.name));
 
-      if (!selectedContainers || selectedContainers.length === 0) {
+      if (!selectedContainers ?? selectedContainers.length === 0) {
         throw new Error(`None of the specified containers were found on project: {id: ${project.id}, name: ${project.name}}`);
       }
 

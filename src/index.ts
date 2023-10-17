@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 import { program } from 'commander';
 
 import rancherService from '@/service/rancher-service';
-import projectService from '@/service/project-service';
 
 dotenv.config();
 
