@@ -19,6 +19,18 @@ async function findRancherProjectByName(name: string): Promise<RancherResponse<R
   return response.data;
 }
 
+async function findAllRancherProjects(): Promise<RancherResponse<RancherProject>> {
+  const response = await axios.get<RancherResponse<RancherProject>>('/v2-beta/projects', {
+    baseURL: process.env.BASE_URL,
+    auth: {
+      username: process.env.KEY ?? '',
+      password: process.env.SECRET ?? '',
+    },
+  });
+
+  return response.data;
+}
+
 async function findContainersByProjectId(projectId: string): Promise<RancherResponse<RancherContainer>> {
   const response = await axios.get<RancherResponse<RancherContainer>>(`/v2-beta/projects/${projectId}/instances`, {
     baseURL: process.env.BASE_URL,
@@ -51,4 +63,4 @@ async function restartContainer(projectId: string, containerId: string): Promise
   return response.data;
 }
 
-export default { findRancherProjectByName, findContainersByProjectId, restartContainer };
+export default { findRancherProjectByName, findAllRancherProjects, findContainersByProjectId, restartContainer };

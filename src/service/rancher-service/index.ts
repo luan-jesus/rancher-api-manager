@@ -2,8 +2,10 @@ import rancherRepository from '@/repository/rancher-repository';
 import logger from '@/infrastructure/logger';
 import type RancherProject from '@/models/rancher-project';
 import type RancherContainer from '@/models/rancher-container';
+import fs from 'fs';
 import RancherStates from '@/models/rancher-project/rancher-states-enum';
 import { ansiTextColor, AnsiColor} from '@/utils/ansi-utils';
+import { env } from 'process';
 
 interface RestartContainersParams {
   environments: string[];
@@ -57,12 +59,77 @@ async function restartContainers({ environments, containers }: RestartContainers
         }
       }
     } catch (e) {
+      console.log(e);
       if (e instanceof Error) {
         logger.error(e.message);
         continue;
       }
     }
   }
+}
+
+async function getAllProperties() {
+  logger.info(`==============================================`);
+  logger.info(`Searching for projects`);
+  logger.info(`==============================================`);
+  const projectResponse = await rancherRepository.findAllRancherProjects();
+  const projects = projectResponse?.data
+    .filter(p => p.state === RancherStates.ACTIVE)
+    .map(p => ({id: p.id, name: p.name}));
+
+  const projectsWithDatabase = [];
+
+  for (const project of projects) {
+    projectsWithDatabase.push({
+        ...project,
+        databases: await getProjectDatabaseProperties(project.id)
+    });
+  }
+
+  if (!fs.existsSync('./output')){
+      fs.mkdirSync('./output');
+  }
+
+  const fileOutput = `./output/json-${getLocalDateTimeString()}.json`;
+  fs.writeFileSync(fileOutput, JSON.stringify(projectsWithDatabase), 'utf-8');
+  logger.success(`Output file saved at: ${fileOutput}`);
+}
+
+function getLocalDateTimeString() {
+  return new Date()
+    .toLocaleString()
+    .replace(/\//g, '-')
+    .replace(/:/g, '-')
+    .replace(', ', 'T');
+}
+
+type EnvironmentDatabaseProperties = {
+  serviceName: string;
+  dbUrl: string;
+  dbUser: string;
+  dbPassword: string;
+}
+
+async function getProjectDatabaseProperties(envId:string): Promise<EnvironmentDatabaseProperties[] | null> {
+  logger.info(`Finding project data from ${envId}`);
+  const response = await rancherRepository.findContainersByProjectId(envId);
+
+  const databaseProperties: EnvironmentDatabaseProperties[] = [];
+
+  for (const container of response.data) {
+    if (!container.name.includes('database') && container.environment) {
+      if (container.environment['DB_URL']) {
+        databaseProperties.push({
+          serviceName: container.name,
+          dbUrl: container.environment['DB_URL'],
+          dbUser: container.environment['DB_USER'],
+          dbPassword: container.environment['DB_PASSWORD'],
+        });
+      }
+    }
+  }
+
+  return databaseProperties;
 }
 
 function nameExistsInList(list: string[], name: string): boolean {
@@ -85,4 +152,4 @@ function printRancherObject(object: RancherProject | RancherContainer) {
   };
 }
 
-export default { restartContainers };
+export default { restartContainers, getAllProperties };

@@ -7,6 +7,7 @@ interface RancherContainer {
   state: ContainerState;
   description: string;
   uuid: string;
+  environment: any;
 }
 
 export default RancherContainer;

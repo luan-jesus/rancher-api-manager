@@ -18,6 +18,11 @@ async function main() {
     .requiredOption('-c, --containers [containers...]', 'specify containers')
     .action(rancherService.restartContainers);
 
+  program
+    .command('find-database-properties')
+    .description('Get all environments database connection properties')
+    .action(rancherService.getAllProperties);
+
   // program
   //   .command('checkout')
   //   .description('Checkout project(s) to determined branch')
