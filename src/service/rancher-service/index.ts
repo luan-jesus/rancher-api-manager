@@ -104,10 +104,13 @@ function getLocalDateTimeString() {
 }
 
 type EnvironmentDatabaseProperties = {
-  serviceName: string;
-  dbUrl: string;
-  dbUser: string;
-  dbPassword: string;
+  serviceName?: string;
+  dbUrl?: string;
+  dbUser?: string;
+  dbPassword?: string;
+  dbPool?: string;
+  rotinasImediatas?: string;
+  integradorThreads?: string;
 }
 
 async function getProjectDatabaseProperties(envId:string): Promise<EnvironmentDatabaseProperties[] | null> {
@@ -117,16 +120,28 @@ async function getProjectDatabaseProperties(envId:string): Promise<EnvironmentDa
   const databaseProperties: EnvironmentDatabaseProperties[] = [];
 
   for (const container of response.data) {
-    if (!container.name.includes('database') && container.environment) {
+    if (container.name.includes('rotina') && container.environment) {
+
       if (container.environment['DB_URL']) {
         databaseProperties.push({
-          serviceName: container.name,
-          dbUrl: container.environment['DB_URL'],
-          dbUser: container.environment['DB_USER'],
-          dbPassword: container.environment['DB_PASSWORD'],
+          rotinasImediatas: container.environment['POOL_SIZE_IMEDIATA_CONTABIL']
         });
       }
     }
+
+    // Find all services envs
+    // if (!container.name.includes('database') && container.environment) {
+    //   if (container.environment['DB_URL']) {
+    //     console.log(container.environment);
+    //     databaseProperties.push({
+    //       serviceName: container.name,
+    //       dbUrl: container.environment['DB_URL'],
+    //       dbUser: container.environment['DB_USER'],
+    //       dbPassword: container.environment['DB_PASSWORD'],
+    //       dbPool: container.environment['DB_MAX_POOL']
+    //     });
+    //   }
+    // }
   }
 
   return databaseProperties;
