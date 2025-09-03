@@ -23,6 +23,15 @@ async function main() {
     .description('Get all environments database connection properties')
     .action(rancherService.getAllProperties);
 
+  program
+    .command('deploy')
+    .description('Deploy containers of one or more environments')
+    .requiredOption('-e, --environments [environments...]', 'specify environments')
+    .requiredOption('-c, --containers [containers...]', 'specify containers')
+    .option('-t, --target <value>', 'which branch to deploy', 'main')
+    .option('-b, --build', 'build the project')
+    .action(rancherService.deployContainers);
+
   // program
   //   .command('checkout')
   //   .description('Checkout project(s) to determined branch')
